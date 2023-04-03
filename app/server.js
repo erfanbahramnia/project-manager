@@ -2,6 +2,8 @@ const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
 const http = require("http");
+const swaggerUI = require("swagger-ui-express");
+const swaggerJsDoc = require("swagger-jsdoc");
 
 class Application {
     #app = express();
@@ -22,6 +24,25 @@ class Application {
         this.#app.use(express.json());
         this.#app.use(express.urlencoded({extended: true}));
         this.#app.use(express.static(path.join(__dirname, "..", "public")));
+
+        // config the swagger for documentation
+        this.#app.use("/api-doc", swaggerUI.serve, swaggerUI.setup(swaggerJsDoc({
+            swaggerDefinition: {
+                openapi: "3.0.0",
+                info: {
+                    title: "Project Manager",
+                    version: "1.0.0",
+                    description: "best place for managing projects"
+                },
+                servers: [
+                    {
+                        url: "http://localhost:3000"
+                    }
+                ]
+            },
+            apis: ["./app/routes/**/*.js"]
+
+        })));
     };
 
     #configDataBase() {
@@ -47,7 +68,9 @@ class Application {
     };
 
     #createRoutes() {
-        
+        // all routes execute in this section
+        const { allRoutes } = require("./routes/routes.js");
+        this.#app.use(allRoutes);
     };
 
     #errorHandler() {
@@ -59,6 +82,7 @@ class Application {
         });
 
         this.#app.use((error, req, res, next) => {
+            console.log(error)
             const status = error.status || error.statusCode || 500;
             const message = error.message || "Internal Server Error";
             return res.status(status).json({
