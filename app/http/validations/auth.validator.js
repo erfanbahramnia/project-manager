@@ -2,6 +2,8 @@
 const { body } = require("express-validator");
 // for validation the data 
 const { UserModel } = require("../../model/user.model.js");
+// compare str pass with hash pass
+const { comparePass } = require("../../utils/functions.js");
 
 // for authorization and authentication
 class AuthValidator {
@@ -65,6 +67,37 @@ class AuthValidator {
                 // password validate successfuly
                 return true;
             }),
+        ];
+    };
+
+    // validate user login
+    login() {
+        return [
+            body("username").notEmpty().withMessage("username should not be empty").custom(async (username) => {
+                // if username is empty send error
+                if (!username) throw {status: 400, message: "username should not be empty"};
+                // chech username that follow specific pattern
+                const usernamePattern = /[a-z]{1}[a-z0-9\.\_]{2,}/gi;
+                if (!usernamePattern.test(username)) throw {status: 400, message: "please enter a valid username"};
+                // check that user exist
+                const user = await UserModel.findOne({username});
+                if (!user) throw {status: 400, message: "there is no such this username"};
+                // username validate successfuly
+                return true;
+            }),
+            body("password").isLength({min: 6, max: 16}).withMessage("password character amount between 6 and 16").custom(async (password, {req}) => {
+                // if password is empty send error
+                if (!password) throw {status: 400, message: "password should not be empty"};
+                // get hash password
+                const { username } = req.body;
+                const user = await UserModel.findOne({ username });
+                // compare the str pass and hash pass
+                const result = comparePass(password, user.password)
+                // handle error if password is incorrect
+                if (!result) throw {status: 400, message: "password is incorrect"}; 
+                // password validate successfuly
+                return true;
+            })
         ];
     };
 };

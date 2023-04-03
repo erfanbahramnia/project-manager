@@ -53,6 +53,35 @@ const { expressValidator } = require("../http/middlewares/checkerror.js");
 // register new user
 router.post("/register", AuthValidator.register(), expressValidator, AuthController.register);
 
+// register section for signing up user
+/**
+ * @swagger
+ * /auth/login:
+ *  post:
+ *      summary: register new user
+ *      tags: [auth]
+ *      requestBody:
+ *          description: get user data
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                    type: object
+ *                    properties:
+ *                      username: 
+ *                          type: string
+ *                      password: 
+ *                          type: string
+ *      responses:
+ *          "200":
+ *              description: "*ok*"
+ *          "400":
+ *              description: "*bad request*"
+ * 
+ */
+// register new user
+router.post("/login", AuthValidator.login(), expressValidator, AuthController.login);
+
 module.exports = {
     authRoute: router
 };
