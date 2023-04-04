@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema({
     skills: {type: [String], default: []},
     teams: {type: [mongoose.Types.ObjectId], default: []},
     token: {type: String, default: ""},
-    profile_image: {type: String, default: "/defaults/default.jpg"},
+    profile_image: {type: String, default: "defaults/default.jpg"},
 }, {
     timestamps: true
 });
