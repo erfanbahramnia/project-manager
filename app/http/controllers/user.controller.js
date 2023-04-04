@@ -17,6 +17,36 @@ class UserController {
             next(error);
         };
     };
+
+    async editProfile(req, res, next) {
+        try {
+            const data = req.body;
+            const UserID = req.user._id;
+
+            const keys = ["first_name", "last_name", "skills"];
+            const fields = [null, undefined, "", " ", 0, NaN, -1];
+            Object.entries(data).forEach(([key, value]) => {
+                if(!keys.includes(key)) delete data[key];
+                if(fields.includes(value)) delete data[key];
+            });
+
+            const result = await UserModel.updateOne({_id: UserID}, {
+                $set: {
+                    data
+                }
+            }); 
+            console.log(result)
+            if (result.modifiedCount > 0) {
+                return res.status(200).json({
+                    status: 200,
+                    message: "update profile completed"
+                });
+            }; 
+            throw {status: 400, message: "update failed!"}
+        } catch (error) {
+            next(error);
+        }
+    }
 };
 
 module.exports = {
