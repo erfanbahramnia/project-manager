@@ -20,9 +20,12 @@ class UserController {
 
     async editProfile(req, res, next) {
         try {
+            // get data of request body
             const data = req.body;
+            // take id of user 
             const UserID = req.user._id;
 
+            // delete unexpectable values
             const keys = ["first_name", "last_name", "skills"];
             const fields = [null, undefined, "", " ", 0, NaN, -1];
             Object.entries(data).forEach(([key, value]) => {
@@ -30,12 +33,13 @@ class UserController {
                 if(fields.includes(value)) delete data[key];
             });
 
+            // find user and update the data
             const result = await UserModel.updateOne({_id: UserID}, {
                 $set: {
                     data
                 }
             }); 
-            console.log(result)
+            // check modified values
             if (result.modifiedCount > 0) {
                 return res.status(200).json({
                     status: 200,
@@ -44,6 +48,7 @@ class UserController {
             }; 
             throw {status: 400, message: "update failed!"}
         } catch (error) {
+            // handle error
             next(error);
         }
     }
