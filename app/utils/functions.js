@@ -1,5 +1,7 @@
 const bcrypt = require("bcrypt");
 const Jwt = require("jsonwebtoken");
+const path = require("path");
+const fs = require("fs");
 
 // convert string to hash
 const generateHashPass = (data) => {
@@ -28,9 +30,25 @@ const verifyJwtToken = (token) => {
     return user;
 };
 
+// create a path with date of now
+const createPathDirectory = () => {
+    // create a new path based on date
+    const date = new Date();
+    const Day = date.getDay().toString();
+    const Month = date.getMonth().toString();
+    const Year = date.getFullYear().toString();
+    // create new path
+    const uploadPath = path.join(__dirname, "..", "..", "public", "uploads", Year, Month, Day);
+    // creake directory
+    fs.mkdirSync(uploadPath, {recursive: true});
+    // return new path
+    return path.join("public", "uploads", Year, Month, Day);
+};
+
 module.exports = {
     generateHashPass,
     comparePass,
     tokenGenerator,
-    verifyJwtToken
+    verifyJwtToken,
+    createPathDirectory
 };

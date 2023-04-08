@@ -3,6 +3,11 @@ const router = require("express").Router();
 const { checkLogin } = require("../http/middlewares/checkLogin.js");
 // controller of crud for user
 const { UserController } = require("../http/controllers/user.controller.js");
+//
+const { upload_multer } = require("../utils/multer.js");
+// 
+const { UserValidator } = require("../http/validations/user.validator.js");
+const { expressValidator } = require("../http/middlewares/checkerror.js")
 
 /**
  * @swagger
@@ -70,6 +75,43 @@ router.get("/get-profile", checkLogin, UserController.getProfile);
  */
 
 router.post("/edit-profile", checkLogin, UserController.editProfile);
+
+/**
+ * @swagger
+ * /user/edit-profileImage:
+ *  post:
+ *      summary: edit profile image
+ *      tags: ["user"]
+ *      parameters:
+ *        - in: header
+ *          name: token
+ *          schema:
+ *              type: string
+ *          required: true
+ *      requestBody:
+ *          description: update data of user
+ *          required: true
+ *          content:
+ *              multipart/form-data:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          image:
+ *                              type: string
+ *                              format: binary
+ *      responses:
+ *          "200":
+ *              description: ok
+ *          "400":
+ *              description: bad request
+ */
+
+router.post("/edit-profileImage", checkLogin,
+    upload_multer.single("image"),
+    UserValidator.imageValidation(),
+    expressValidator,
+    UserController.uploadProfileImage
+);
 
 module.exports = {
     userRoute: router
