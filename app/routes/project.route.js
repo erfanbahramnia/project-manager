@@ -5,6 +5,7 @@ const { ProjectValidator } = require("../http/validations/project.validator.js")
 const { ProjectController } = require("../http/controllers/project.controller.js");
 const { uploadFile } = require("../utils/express-fileupload.js");
 const fileUpload = require("express-fileupload");
+const { Validator } = require("../http/validations/public.validator.js");
 
 // create tag for project
 /**
@@ -117,7 +118,35 @@ router.post("/edit-projectImage/:projectId",
 *            description: bad request
  */
 
-router.get("/getAllProjects", checkLogin, ProjectController.getAllProjects);
+router.get("/getAllProjects", checkLogin, expressValidator, ProjectController.getAllProjects);
+
+/**
+ * @swagger
+ * /project/{id}:
+ *  get:
+ *      summary: get user's project by its id
+ *      tags: ["project"]
+ *      parameters:
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *          - in: header
+ *            name: token
+ *            schema:
+ *              type: string
+ *            required: true
+ *      responses:
+ *       "200":
+ *           description: ok
+ *       "400":
+ *           description: bad request
+ *       "500":
+ *           description: internal server error
+ */
+
+router.get("/:id", checkLogin, Validator.mongoIdValidator(), expressValidator, ProjectController.getProjectById)
 
 module.exports = {
     projectRoute: router

@@ -67,8 +67,32 @@ class ProjectController {
         } catch (error) {
             // handle errors
             next(error)
+        };
+    };
+
+    async getProjectById(req, res, next) {
+        try {
+            // get id of the project owner
+            const owner = req.user._id;
+            // get id of the project
+            const projectId = req.params.id;
+            // find project
+            const project = await ProjectModel.findOne({owner, _id: projectId});
+            // check if project exist
+            if(!project) throw {status: 400, message: "there is no such this project"};
+            // create link for image
+            project.image = createLinkForFiles(project.image, req);
+            // project found successfully
+            res.status(200).json({
+                status: 200,
+                project
+            });
+        } catch (error) {
+            // handle error
+            next(error);
         }
     }
+
 };
 
 module.exports = {
