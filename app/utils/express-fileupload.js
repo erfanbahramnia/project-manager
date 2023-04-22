@@ -13,7 +13,7 @@ const uploadFile = async (req, res, next) => {
         // create path for save the image in it
         let uploadPath = path.join(createPathDirectory(), (Date.now() + imageFormat));
         // save path of saved image so update in db
-        req.body.image = uploadPath;
+        req.body.image = uploadPath.substring(7);
         // save image in especific path
         image.mv(uploadPath, (err) => {
             // handle error
