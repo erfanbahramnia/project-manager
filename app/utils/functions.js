@@ -45,10 +45,16 @@ const createPathDirectory = () => {
     return path.join("public", "uploads", Year, Month, Day);
 };
 
+const createLinkForFiles = (filePath, req) => {
+    const newPath = filePath ? `${req.protocol}://${req.get("host")}/${filePath.replace(/[\\\\]/gm, "/")}` : undefined;
+    return newPath;
+};
+
 module.exports = {
     generateHashPass,
     comparePass,
     tokenGenerator,
     verifyJwtToken,
-    createPathDirectory
+    createPathDirectory,
+    createLinkForFiles
 };

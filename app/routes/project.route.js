@@ -96,7 +96,28 @@ router.post("/edit-projectImage/:projectId",
     uploadFile,
     expressValidator,
     ProjectController.uploadProjectImage
-)
+);
+
+/**
+* @swagger
+* /project/getAllProjects:
+*   get:
+*       summary: get All user project
+*       tags: ["project"]
+*       parameters:
+*         - in: header
+*           name: token
+*           schema:
+*               type: string
+*           required: true 
+*       responses:
+*        "200":
+*            description: ok
+*        "400":
+*            description: bad request
+ */
+
+router.get("/getAllProjects", checkLogin, ProjectController.getAllProjects);
 
 module.exports = {
     projectRoute: router
