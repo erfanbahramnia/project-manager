@@ -5,10 +5,19 @@ const path = require("path");
 class ProjectValidator {
     create() {
         return [
-            body("title").notEmpty().withMessage("Title should not be empty"),
-            body("text").isLength({min: 20}).withMessage("text should be more than 20 character")
+            body("title").notEmpty().withMessage({status: 400, message: "Title should not be empty"}),
+            body("text").isLength({min: 20}).withMessage({status: 400, message: "text should be more than 20 character"})
         ];
     };
+
+    update() {
+        return [
+            body("title").notEmpty().withMessage({status: 400, message: "Title should not be empty"}),
+            body("text").isLength({min: 20}).withMessage({status: 400, message: "text should be more than 20 character"}),
+            body("tags").isArray({min: 0, max: 10}).withMessage({status: 400, message: "tags should not more than 10"})
+        ];
+    };
+
 
     imageUpdateValidator() {
         return [

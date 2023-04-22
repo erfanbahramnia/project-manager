@@ -176,6 +176,49 @@ router.get("/:id", checkLogin, Validator.mongoIdValidator(), expressValidator, P
 
 router.get("/remove/:id", checkLogin, Validator.mongoIdValidator(), expressValidator, ProjectController.removeProjectById)
 
+/**
+ * @swagger
+ * /project/update/{id}:
+ *  put:
+ *      summary: update project by id
+ *      tags: [project]
+ *      parameters:
+ *          - in: header
+ *            name: token
+ *            schema:
+ *              type: string
+ *            required: true
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *      requestBody:
+ *          description: get project data
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                    type: object
+ *                    properties:
+ *                      title: 
+ *                          type: string
+ *                      text: 
+ *                          type: string
+ *                      tags:
+ *                          type: array
+ *                          items:
+ *                              type: string
+ *      responses:
+ *          "200":
+ *              description: "*ok*"
+ *          "400":
+ *              description: "*bad request*"
+ * 
+ */
+router.put("/update/:id", checkLogin, Validator.mongoIdValidator(), ProjectValidator.update(), expressValidator, ProjectController.updateProjectById);
+
+
 module.exports = {
     projectRoute: router
 };

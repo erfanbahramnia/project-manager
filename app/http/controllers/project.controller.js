@@ -114,6 +114,44 @@ class ProjectController {
         } catch (error) {
             // handle error
             next(error);
+        };
+    };
+
+    async updateProjectById(req, res, next) {
+        try {
+            // get id of the project
+            const {id: projectId} = req.params;
+            // get id of the owner
+            const owner = req.user._id; 
+            // get new data of project
+            const data = {...req.body};
+            // validate new data
+            Object.entries(data).forEach(([key, value]) => {
+                if(!["title", "text", "tags"].includes(key)) delete data[key];
+                if([" ", "", 0, 1, null, undefined, NaN].includes(typeof value === "string" ? value.trim() : '')) delete data[key];
+                if(key == "tags" && (typeof data['tags'] === "array")) {
+                    data["tags"] = data["tags"].filter(item => {
+                        if(!["", " ", 0, 1, null, undefined, NaN].includes(item)) return item
+                    });
+                    if(data["tags"].length == 0) delete data["tags"];
+                };
+            })
+            // check if project exist
+            const project = await ProjectModel.findOne({owner, _id: projectId});
+            if (!project) throw {status: 400, message: "there is no such this project"};
+            // update the project
+            const updateResult = await ProjectModel.updateOne({owner, _id: projectId}, {
+                $set: {...data}
+            });
+            // check result of update
+            if (updateResult.modifiedCount === 0) throw {status: 400, message: "update failed!"};
+            // updated successfully
+            res.status(200).json({
+                status: 200,
+                message: "prject updated successfully"
+            })
+        } catch (error) {
+            next(error);
         }
     }
 
