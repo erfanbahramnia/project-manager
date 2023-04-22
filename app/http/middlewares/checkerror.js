@@ -11,6 +11,7 @@ const expressValidator = (req, res, next) => {
         if (result?.errors?.length > 0) {
             // save errors in a object
             result.errors.forEach(error => {
+                console.log(error)
                 errors[error.param] = error.msg.message;
             });
             // sending erros
@@ -18,6 +19,8 @@ const expressValidator = (req, res, next) => {
                 status: 400,
                 errors
             });
+            console.log("errors",errors)
+            return true;
         };
         // validation completed
         next();

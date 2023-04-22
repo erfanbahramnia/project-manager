@@ -21,6 +21,31 @@ class ProjectController {
             next(error);
         };
     };
+
+    async uploadProjectImage(req, res, next) {
+        try {
+            // get path of the image
+            const { image } = req.body;
+            // get id of project from request
+            const { projectId } = req.params;
+            // get projects owner id
+            const owner = req.user._id;
+            // update the projects image
+            const projectUpdateResult = await ProjectModel.updateOne({_id: projectId, owner}, {
+                $set: {image}
+            });
+            // check update 
+            if (projectUpdateResult.modifiedCount == 0) throw {status: 500, message: "update falied"};
+            // image of project updated successfully
+            res.status(200).json({
+                status: 200,
+                message: "updated successfully"
+            });
+        } catch (error) {
+            // handle error
+            next(error);
+        };
+    };
 };
 
 module.exports = {
