@@ -93,6 +93,30 @@ class ProjectController {
         }
     }
 
+    async removeProjectById(req, res, next) {
+        try {
+            // get id of the project owner
+            const owner = req.user._id;
+            // get id of the project
+            const projectId = req.params.id;
+            // check if project exist
+            const project = await ProjectModel.findOne({owner, _id: projectId});
+            if(!project) throw {status: 400, message: "there is no such this project"}
+            // delete project
+            const removeResult = await ProjectModel.deleteOne({owner, _id: projectId});
+            // check if project deletes
+            if(removeResult.deletedCount === 0) throw {status: 500, message: "removing falid!"};
+            // project deleted successfully
+            res.status(200).json({
+                status: 200,
+                message: "project deleted successfully"
+            });
+        } catch (error) {
+            // handle error
+            next(error);
+        }
+    }
+
 };
 
 module.exports = {
