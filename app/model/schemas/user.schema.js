@@ -1,6 +1,14 @@
 const mongoose = require("mongoose");
 
-// datas that should saved when user sign up
+// create seperate schema of invite requests of user
+const InviteRequest = new mongoose.Schema({
+    teamId: {type: mongoose.Types.ObjectId, required: true},
+    caller: {type: String, required: true, lowercase: true},
+    requestData: {type: Date, default: new Date()},
+    status: {type: String, default: "pending"} // rejected - accepted - pending
+})
+
+// data that should saved when user sign up
 const UserSchema = new mongoose.Schema({
     first_name: {type: String, required: true},
     last_name: {type: String, required: true},
@@ -13,6 +21,7 @@ const UserSchema = new mongoose.Schema({
     teams: {type: [mongoose.Types.ObjectId], default: []},
     token: {type: String, default: ""},
     profile_image: {type: String, default: "defaults/default.jpg"},
+    inviteRequest: {type: [InviteRequest]}
 }, {
     timestamps: true
 });
