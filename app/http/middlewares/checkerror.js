@@ -12,7 +12,7 @@ const expressValidator = (req, res, next) => {
             // save errors in a object
             result.errors.forEach(error => {
                 console.log(error)
-                errors[error.param] = error.msg.message;
+                errors[error.param] = error.msg || error.msg.message;
             });
             // sending erros
             res.json({
