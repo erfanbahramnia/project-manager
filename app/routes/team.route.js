@@ -48,6 +48,50 @@ const { expressValidator } = require("../http/middlewares/checkerror.js");
 
 router.post("/create", checkLogin, TeamValidator.create(), expressValidator, TeamController.createTeam);
 
+/**
+ * @swagger
+ * /team/allTeams:
+ *  get:
+ *      description: get all teams
+ *      tags: ["team"]
+ *      parameters:
+ *          - in: header
+ *            name: token
+ *            schema:
+ *              type: string
+ *      responses:
+ *          "200":
+ *              description: ok
+ *          "400":
+ *              description: bad request
+ *          "500":
+ *              description: internal server error
+ */
+
+router.get("/allTeams", checkLogin, TeamController.getAllTeams);
+
+/**
+ * @swagger
+ * /team/myTeams:
+ *  get:
+ *      description: get all teams of the user
+ *      tags: ["team"]
+ *      parameters:
+ *          - in: header
+ *            name: token
+ *            schema:
+ *              type: string
+ *      responses:
+ *          "200":
+ *              description: ok
+ *          "400":
+ *              description: bad request
+ *          "500":
+ *              description: internal server error
+ */
+
+router.get("/myTeams", checkLogin, TeamController.getMyTeams);
+
 module.exports = {
     teamRoute: router
 }
