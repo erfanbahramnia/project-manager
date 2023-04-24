@@ -1,9 +1,10 @@
 const router = require("express").Router();
 const { checkLogin } = require("../http/middlewares/checkLogin.js");
-const { TeamModel } = require("../model/team.model.js");
 const { TeamController } = require("../http/controllers/team.controller.js");
 const { TeamValidator } = require("../http/validations/team.validator.js");
 const { expressValidator } = require("../http/middlewares/checkerror.js");
+const { Validator } = require("../http/validations/public.validator.js");
+
 
 // create tag for team
 /**
@@ -91,6 +92,32 @@ router.get("/allTeams", checkLogin, TeamController.getAllTeams);
  */
 
 router.get("/myTeams", checkLogin, TeamController.getMyTeams);
+
+/**
+ * @swagger
+ * /team/{id}:
+ *  get:
+ *      summary: get team by id
+ *      tags: ["team"]
+ *      parameters:
+ *          - in: header
+ *            name: token
+ *            schema:
+ *              type: string
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *      responses:
+ *          "200":
+ *              description: ok
+ *          "400":
+ *              description: bad request
+ *          "500":
+ *              description: internal server error
+ */
+
+router.get("/:id", checkLogin, Validator.mongoIdValidator(), expressValidator, TeamController.getTeamById)
 
 module.exports = {
     teamRoute: router

@@ -1,4 +1,5 @@
 const { TeamModel } = require("../../model/team.model.js");
+const { createLinkForFiles } = require("../../utils/functions.js"); 
 
 class TeamController {
     async createTeam(req, res, next) {
@@ -61,7 +62,7 @@ class TeamController {
                         "owner.password": 0,
                         "owner.token": 0,
                         "owner.teams": 0,
-                        "owner.skillds": 0,
+                        "owner.skills": 0,
                         "owner.inviteRequests": 0,
                     }
                 },
@@ -69,6 +70,12 @@ class TeamController {
                     $unwind: "$owner"
                 }
             ])
+            // check teams found
+            if(teams.length == 0) throw {status: 400, message: "user have no team"}
+            // add links for profile imags
+            teams.forEach(team => {
+                team.owner.profile_image = createLinkForFiles(team.owner.profile_image, req);
+            }) 
             res.status(200).json({
                 status: 200,
                 teams
@@ -76,7 +83,56 @@ class TeamController {
         } catch (error) {
             next(error);
         }
-    }
+    };
+
+    async getTeamById(req, res, next) {
+        try {
+            const mongoose = require("mongoose")
+            // get team id
+            const teamId = new mongoose.Types.ObjectId(req.params.id);
+            // find project
+            const team = await TeamModel.aggregate([
+                {
+                    $match: {
+                        _id: teamId
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "owner",
+                        foreignField: "_id",
+                        as: "owner"
+                    }
+                },
+                {
+                    $project: {
+                        "owner.roles": 0,
+                        "owner.password": 0,
+                        "owner.token": 0,
+                        "owner.teams": 0,
+                        "owner.skills": 0,
+                        "owner.inviteRequests": 0,
+                    }
+                },
+                {
+                    $unwind: "$owner"
+                }
+            ]);
+            // check team 
+            if(team.length === 0) throw {status: 400, message: "there is no such this team"};
+            // create link for profile image
+            team[0].owner.profile_image = createLinkForFiles(team[0].owner.profile_image, req);
+            // team found successfully
+            res.status(200).json({
+                status: 200,
+                team
+            });
+        } catch (error) {
+            // handle error
+            next(error);
+        };
+    };
 };
 
 module.exports = {
