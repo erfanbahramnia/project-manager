@@ -1,7 +1,13 @@
 const { TeamModel } = require("../../model/team.model.js");
-const { createLinkForFiles } = require("../../utils/functions.js"); 
+const { UserModel } = require("../../model/user.model.js");
+const { createLinkForFiles } = require("../../utils/functions.js");
+const  autoBind = require("auto-bind");
 
 class TeamController {
+    constructor() {
+        autoBind(this)
+    }
+
     async createTeam(req, res, next) {
         try {
             // get data of new team
@@ -157,6 +163,53 @@ class TeamController {
             next(error);
         };
     };
+
+    async findUserInTeam(teamId, userId) {
+        const result = await TeamModel.findOne({
+            $or: [{owner: userId}, {users: userId}],
+            _id: teamId
+        });
+        return !!result;
+    };
+
+    async inviteUserToTeam(req, res, next) {
+        try {
+            // get team id and username of person gonno invited to team
+            const {id: teamId, username} = req.params
+            // get user id
+            const owner = req.user._id
+            // check user is a member in team
+            const team = await this.findUserInTeam(teamId, owner)
+            if (!team) throw {status: 400, message: "there is no such this team or you're not a member in that team"};
+            // find user that gonno invite to the team
+            const user = await UserModel.findOne({username});
+            if (!user) throw {status: 400, message: "there is no such this user"}
+            // check user that gonno invite to the team has already in team
+            const invitedUser = await this.findUserInTeam(teamId, user._id);
+            if (invitedUser) throw {status: 400, message: "this user has already in team"};
+            // create request for user
+            const request = {
+                caller: owner,
+                status: "pendeng",
+                requestDate: new Date(),
+                teamId
+            };
+            // update resqust of user
+            const updateResult = await UserModel.updateOne({username}, {
+                $push: {inviteRequest: request}
+            });
+            // check update
+            if (updateResult.modifiedCount === 0) throw {status: 500, message: "update failed!"}
+            // request send successfully
+            res.status(200).json({
+                status: 200,
+                message: "request send successfully"
+            });
+        } catch (error) {
+            // handle error
+            next(error);
+        }
+    }
 };
 
 module.exports = {
