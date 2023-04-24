@@ -133,6 +133,30 @@ class TeamController {
             next(error);
         };
     };
+
+    async removeTeamById(req, res, next) {
+        try {
+            // get team id
+            const teamId = req.params.id;
+            // get user id
+            const owner = req.user._id;
+            // check that team exist or not
+            const team = await TeamModel.findOne({owner, _id: teamId});
+            if(!team) throw {status: 400, message: "there is no such this project"};
+            // deleting team
+            const removeResult = await TeamModel.deleteOne({owner, _id: teamId});
+            // check team deleted
+            if(removeResult.deletedCount == 0) throw {status: 500, message: "delete failed"};
+            // team deleted successfully
+            res.status(200).json({
+                status: 200,
+                message: "team deleted successfully"
+            });
+        } catch (error) {
+            // handle error
+            next(error);
+        };
+    };
 };
 
 module.exports = {

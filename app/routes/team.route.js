@@ -119,6 +119,32 @@ router.get("/myTeams", checkLogin, TeamController.getMyTeams);
 
 router.get("/:id", checkLogin, Validator.mongoIdValidator(), expressValidator, TeamController.getTeamById)
 
+/**
+ * @swagger
+ * /team/remove/{id}:
+ *  get:
+ *      summary: delete team by id
+ *      tags: ["team"]
+ *      parameters:
+ *          - in: header
+ *            name: token
+ *            schema:
+ *              type: string
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *      responses:
+ *          "200":
+ *              description: ok
+ *          "400":
+ *              description: bad request
+ *          "500":
+ *              description: internal server error
+ */
+
+router.get("/remove/:id", checkLogin, Validator.mongoIdValidator(), expressValidator, TeamController.removeTeamById)
+
 module.exports = {
     teamRoute: router
 }
