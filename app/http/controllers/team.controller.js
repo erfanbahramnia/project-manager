@@ -210,6 +210,44 @@ class TeamController {
             next(error);
         }
     }
+
+    async updateTeam(req, res, next) {
+        try {
+            // get id of the team
+            const {id} = req.params;
+            // get id of user
+            const owner = req.user._id;
+            // check if team exist
+            const team = await TeamModel.findOne({_id: id, owner});
+            if (!team) throw {status: 400, message: "there is no such this team"};
+            // get new data
+            let data = {...req.body};
+            // validate new data
+            Object.entries(data).forEach(async([key, value]) => {
+                if(!value) throw {status: 400, message: "value is not valid"};
+                if(!["username", "name", "description"].includes(key)) throw {status: 400, message: "key is not valid"};
+            });
+            // check username have not already used
+            if(data["username"]) {
+                const isTeamExist = await TeamModel.findOne({username: data["username"]});
+                if(isTeamExist) throw {status: 400, message: "this username has already used!"};
+            }
+            // update the team
+            const updateResult = await TeamModel.updateOne({owner, _id: id}, {
+                $set: {...data}
+            });
+            // check update
+            if (updateResult.modifiedCount == 0) throw {status: 500, message: "update Faild!"}
+            // updated successfully
+            res.status(200).json({
+                status: 200,
+                message: "updates successfully"
+            })
+        } catch (error) {
+            // handle error
+            next(error)
+        }
+    }
 };
 
 module.exports = {
