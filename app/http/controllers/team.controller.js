@@ -189,7 +189,7 @@ class TeamController {
             if (invitedUser) throw {status: 400, message: "this user has already in team"};
             // create request for user
             const request = {
-                caller: owner,
+                caller: req.user.username,
                 status: "pendeng",
                 requestDate: new Date(),
                 teamId
