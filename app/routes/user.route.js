@@ -8,6 +8,7 @@ const { upload_multer } = require("../utils/multer.js");
 // 
 const { UserValidator } = require("../http/validations/user.validator.js");
 const { expressValidator } = require("../http/middlewares/checkerror.js")
+const { Validator } = require("../http/validations/public.validator.js");
 
 /**
  * @swagger
@@ -158,6 +159,34 @@ router.get("/allRequests", checkLogin, UserController.getAllRequests);
  */
 
 router.get("/requests/:status", checkLogin, UserController.getRequestByStatus)
+
+/**
+ * @swagger
+ * /user/changeRequestStatus/{id}/{status}:
+ *  get:
+ *      description: change status of requests
+ *      tags: ["user"]
+ *      parameters:
+ *          - in: header
+ *            name: token
+ *            schema:
+ *              type: string
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *          - in: path
+ *            name: status
+ *            schema:
+ *              type: string
+ *      responses:
+ *          "200":
+ *              description: ok
+ *          "400":
+ *              description: bad request
+ */
+
+router.get("/changeRequestStatus/:id/:status", checkLogin, Validator.mongoIdValidator(), UserController.changeRequestStatus)
 
 module.exports = {
     userRoute: router

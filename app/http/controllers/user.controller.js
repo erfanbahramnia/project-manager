@@ -164,7 +164,7 @@ class UserController {
                 }
             ]);
             // send requests
-            res.json({
+            res.status(200).json({
                 requests: inviteRequest[0].inviteRequest || []
             });
         } catch (error) {
@@ -172,6 +172,38 @@ class UserController {
             next(error);
         };
     };
+
+    async changeRequestStatus(req, res, next) {
+        try {
+            // get id of request and specific status
+            const {id, status} = req.params
+            // find the request
+            const requests = await UserModel.findOne({"inviteRequest._id": id});
+            const findRequest = requests.inviteRequest.find(item => item._id == id);
+            // check request exist
+            if (!findRequest) throw {status: 400, message: "there is no such this request"};
+            // current status of request
+            const currentStatus = findRequest.status;
+            // check status of request had already changed
+            if (currentStatus !== "pending") throw {status: 400, message: "status has already changed!"};
+            // validate the status
+            if (["accepted", "rejected"].includes(currentStatus)) throw {status: 400, message: "please send a valid status"}
+            // update the status
+            const updateResult = await UserModel.updateOne({"inviteRequest._id": id}, {
+                $set: {"inviteRequest.$.status": status}
+            });
+            // check update
+            if(updateResult.modifiedCount == 0) throw {status: 500, message: "update failed!"};
+            // updated successfully
+            res.status(200).json({
+                status: 200,
+                message: "updated successfully"
+            })
+        } catch (error) {
+            // handle errors
+            next(error);
+        }
+    }
 };
 
 module.exports = {
