@@ -128,6 +128,50 @@ class UserController {
             next(error);
         }
     }
+
+    async getRequestByStatus(req, res, next) {
+        try {
+            // get user id
+            const userId = req.user._id;
+            // get specific request status
+            const { status } = req.params;
+            // check status
+            if(!["pending", "accepted", "rejected"].includes(status)) throw {status: 400, message: "please send pending, accepted or rejected"};
+            // find specific requests
+            const inviteRequest = await UserModel.aggregate([
+                {
+                    $match: {
+                        _id: userId
+                    }
+                },
+                {
+                    $project: {
+                        inviteRequest: 1,
+                        _id: 0,
+                        inviteRequest: {
+                            $filter: {
+                                input: "$inviteRequest",
+                                as: "request",
+                                cond: {
+                                    $eq: ["$$request.status", status]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    $unwind: "$inviteRequest"
+                }
+            ]);
+            // send requests
+            res.json({
+                requests: inviteRequest[0].inviteRequest || []
+            });
+        } catch (error) {
+            // handle errors
+            next(error);
+        };
+    };
 };
 
 module.exports = {
