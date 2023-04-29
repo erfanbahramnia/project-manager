@@ -113,6 +113,28 @@ router.post("/edit-profileImage", checkLogin,
     UserController.uploadProfileImage
 );
 
+/**
+ * @swagger
+ * /user/allRequests:
+ *  get:
+ *      summary: show all requests of the user
+ *      tags: ["user"]
+ *      parameters:
+ *          - in: header
+ *            name: token
+ *            schema:
+ *              type: string
+ *      responses:
+ *          "200":
+ *              description: ok
+ *          "400":
+ *              description: bad request
+ *          "500":
+ *              description: internal server error
+ */
+
+router.get("/allRequests", checkLogin, UserController.getAllRequests);
+
 module.exports = {
     userRoute: router
 };

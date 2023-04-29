@@ -1,4 +1,5 @@
 const { UserModel } = require("../../model/user.model.js");
+const { createLinkForFiles } = require("../../utils/functions.js");
 
 class UserController {
     getProfile(req, res, next) {
@@ -73,6 +74,60 @@ class UserController {
             next(error);
         };
     };
+
+    async getAllRequests(req, res, next) {
+        try {
+            // get user id
+            const userId = req.user._id;
+            const user = await UserModel.aggregate([
+                {
+                    $match: {
+                        _id: userId
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "inviteRequest.caller",
+                        foreignField: "username",
+                        as: "callerInfo"
+                    }
+                },
+                {
+                    $project: {
+                        "callerInfo.roles": 0,
+                        "callerInfo.firtname": 0,
+                        "callerInfo.lastname": 0,
+                        "callerInfo.password": 0,
+                        "callerInfo.token": 0,
+                        "callerInfo.teams": 0,
+                        "callerInfo.skills": 0,
+                        "callerInfo.inviteRequest": 0,
+                        "callerInfo.createdAt": 0,
+                        "callerInfo.updatedAt": 0,
+                        "callerInfo.__v": 0,
+                    }
+                },
+                {
+                    $unwind: "$callerInfo"
+                }
+            ]);
+            // add link for image of user
+            user[0].profile_image = createLinkForFiles(user[0].profile_image, req)
+            // add link for image of callerinfo
+            user[0].callerInfo.profile_image = createLinkForFiles(user[0].callerInfo.profile_image, req)
+            // check requests found
+            if (!user) throw {status: 400, message: "there is no request!"};
+            // requests found successfully
+            res.status(200).json({
+                status: 200,
+                user
+            })
+        } catch (error) {
+            // handle error
+            next(error);
+        }
+    }
 };
 
 module.exports = {
