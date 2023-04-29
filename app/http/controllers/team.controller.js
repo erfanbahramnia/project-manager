@@ -190,7 +190,7 @@ class TeamController {
             // create request for user
             const request = {
                 caller: req.user.username,
-                status: "pendeng",
+                status: "pending",
                 requestDate: new Date(),
                 teamId
             };
